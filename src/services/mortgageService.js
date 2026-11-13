@@ -27,12 +27,9 @@ async function buildSummary() {
 
   const totalUva = loan.totalUva;
   const paidUva = loan.paidUva;
+  const totalArs = loan.initialArs
+  const totalUsd = loan.initialUsd
 
-  const totalArs = totalUva * uva.value;
-  const paidArs = loan.paidArs ?? paidUva * uva.value;
-
-  const totalUsd = totalArs / fx.venta;
-  const paidUsd = paidArs / fx.venta;
 
   return {
     updatedAt: new Date().toISOString(),
@@ -40,35 +37,20 @@ async function buildSummary() {
       uva,
       fx,
     },
-    items: [
+    debt:
       {
         key: 'uva',
         label: 'Deuda en UVA',
-        unit: 'UVA',
-        initial: null,
-        total: round2(totalUva),
-        paid: round2(paidUva),
-        pct: pct(paidUva, totalUva),
-      },
-      {
-        key: 'ars',
-        label: 'Deuda en pesos (actualizada)',
-        unit: 'ARS',
-        initial: loan.initialArs, // ← valor inicial del crédito en pesos (.env)
-        total: round2(totalArs),
-        paid: round2(paidArs),
-        pct: pct(paidArs, totalArs),
-      },
-      {
-        key: 'usd',
-        label: 'Deuda en dólares (oficial venta)',
-        unit: 'USD',
-        initial: loan.initialUsd, // ← valor inicial en dólares (.env, opcional)
-        total: round2(totalUsd),
-        paid: round2(paidUsd),
-        pct: pct(paidUsd, totalUsd),
-      },
-    ],
+        initial: round2(totalUva),
+        totalUva: round2(totalUva - paidUva),
+        totalArs: round2(totalArs),
+        totalUsd: round2(totalUsd),
+        paidUva: round2(paidUva),
+        paidUvaPct: pct(paidUva, totalUva),
+        remainingDebtUvaPct: round2(100 - pct(paidUva, totalUva))
+      }
+
+    ,
   };
 }
 
